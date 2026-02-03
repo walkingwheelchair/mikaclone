@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlops-runtime-config
+  namespace: argo-workflows   # use the namespace where your workflows run
+data:
+  MLFLOW_S3_ENDPOINT_URL: "http://minio.data-storage.svc.cluster.local:9000"
+  MLFLOW_TRACKING_URI: "http://mlflow.mlops.svc.cluster.local:5000"
+  AWS_DEFAULT_REGION: "us-east-1"
+  POSTGRES_HOST: "postgres-postgresql.data-storage.svc.cluster.local"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "ds_db"

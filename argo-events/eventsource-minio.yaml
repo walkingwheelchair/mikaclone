@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: minio
+  namespace: argo-events
+spec:
+  s3:
+    data-upload:
+      bucket:
+        name: datasets
+      endpoint: minio.data-storage.svc.cluster.local:9000
+      insecure: true
+      accessKey:
+        name: minio
+        key: root-user
+      secretKey:
+        name: minio
+        key: root-password
+      events:
+        - s3:ObjectCreated:Put
+        - s3:ObjectCreated:Post
+        - s3:ObjectCreated:CompleteMultipartUpload
+      filter:
+        prefix: uploads/

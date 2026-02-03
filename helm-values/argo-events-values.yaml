@@ -1,0 +1,26 @@
+# Argo Events Helm values
+
+# -----------------------------
+# Core controllers
+# -----------------------------
+controller:
+  replicas: 1
+
+eventbusController:
+  replicas: 1
+
+eventsourceController:
+  replicas: 1
+
+sensorController:
+  replicas: 1
+
+# -----------------------------
+# RBAC / Service Account
+# -----------------------------
+rbac:
+  create: true
+
+serviceAccount:
+  create: true
+  name: argo-events-sa

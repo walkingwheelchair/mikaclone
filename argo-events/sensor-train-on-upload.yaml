@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: train-on-upload
+  namespace: argo-events
+spec:
+  eventBusName: default
+  template:
+    serviceAccountName: argo-events-sensor
+  dependencies:
+  - name: minio-upload
+    eventSourceName: minio
+    eventName: data-upload
+  triggers:
+  - template:
+      name: trigger-train
+      argoWorkflow:
+        operation: submit
+        source:
+          resource:
+            apiVersion: argoproj.io/v1alpha1
+            kind: Workflow
+            metadata:
+              generateName: train-on-upload-
+              namespace: argo-workflows
+            spec:
+              workflowTemplateRef:
+                name: train-on-upload
+              arguments:
+                parameters:
+                - name: dataset_file
+                  value: ""
+        parameters:
+        - src:
+            dependencyName: minio-upload
+            dataKey: body.Records.0.s3.object.key
+          dest: spec.arguments.parameters.0.value

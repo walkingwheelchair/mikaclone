@@ -1,0 +1,72 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: train-on-upload
+  namespace: argo-workflows
+spec:
+  entrypoint: train
+  arguments:
+    parameters:
+    - name: dataset_file
+  templates:
+  - name: train
+    serviceAccountName: argo-workflow
+    container:
+      image: python:3.11-slim
+      command: ["sh", "-c"]
+      args:
+        - |
+          echo "Training on dataset: {{workflow.parameters.dataset_file}}"
+          echo "MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}"
+          sleep 5
+      env:
+      - name: MLFLOW_TRACKING_URI
+        valueFrom:
+          configMapKeyRef:
+            name: mlops-runtime-config
+            key: MLFLOW_TRACKING_URI
+      - name: MLFLOW_S3_ENDPOINT_URL
+        valueFrom:
+          configMapKeyRef:
+            name: mlops-runtime-config
+            key: MLFLOW_S3_ENDPOINT_URL
+      - name: AWS_DEFAULT_REGION
+        valueFrom:
+          configMapKeyRef:
+            name: mlops-runtime-config
+            key: AWS_DEFAULT_REGION
+      - name: POSTGRES_HOST
+        valueFrom:
+          configMapKeyRef:
+            name: mlops-runtime-config
+            key: POSTGRES_HOST
+      - name: POSTGRES_PORT
+        valueFrom:
+          configMapKeyRef:
+            name: mlops-runtime-config
+            key: POSTGRES_PORT
+      - name: POSTGRES_DB
+        valueFrom:
+          configMapKeyRef:
+            name: mlops-runtime-config
+            key: POSTGRES_DB
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: minio
+            key: root-user
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: minio
+            key: root-password
+      - name: POSTGRES_USER
+        valueFrom:
+          secretKeyRef:
+            name: postgres-admin
+            key: postgres-user
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: postgres-admin
+            key: postgres-password
